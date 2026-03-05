@@ -1,12 +1,12 @@
 {
-  "name": "alist-web",
+  "name": "cloudnest-web",
   "version": "0.0.0",
   "author": {
     "name": "Xhofe",
     "email": "i@nn.ci",
     "url": "https://www.nn.ci"
   },
-  "description": "The front end of Alist V3",
+  "description": "The front end of CloudNest",
   "packageManager": "pnpm@8.6.10",
   "repository": {
     "type": "git",

@@ -8,9 +8,9 @@ export const setSettings = (items: Record<string, string>) => {
   })
   const version = settings["version"] || "Unknown"
   console.log(
-    `%c AList %c ${version} %c https://github.com/alist-org/alist`,
-    "color: #fff; background: #5f5f5f",
-    "color: #fff; background: #70c6be",
+    `%c CloudNest %c ${version} %c https://github.com/liujingyangself/alist-cus`,
+    "color: #fff; background: #2563eb",
+    "color: #fff; background: #3b82f6",
     "",
   )
 }
