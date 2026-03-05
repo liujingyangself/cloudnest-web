@@ -36,6 +36,45 @@ See https://github.com/adobe-type-tools/cmap-resources
 
   <script src="viewer.js"></script>
 
+  <style>
+    #cursorHandToolMain::before {
+      -webkit-mask-image: var(--secondaryToolbarButton-handTool-icon);
+      mask-image: var(--secondaryToolbarButton-handTool-icon);
+    }
+    #cursorHandToolMain.toggled {
+      background-color: var(--toggled-btn-bg-color);
+    }
+  </style>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      var mainBtn = document.getElementById("cursorHandToolMain");
+      var handBtn = document.getElementById("cursorHandTool");
+      var selectBtn = document.getElementById("cursorSelectTool");
+      if (!mainBtn || !handBtn || !selectBtn) return;
+
+      mainBtn.addEventListener("click", function() {
+        var isHand = mainBtn.classList.contains("toggled");
+        if (isHand) {
+          selectBtn.click();
+          mainBtn.classList.remove("toggled");
+        } else {
+          handBtn.click();
+          mainBtn.classList.add("toggled");
+        }
+      });
+
+      // Sync state if user clicks in secondary toolbar
+      var observer = new MutationObserver(function() {
+        if (handBtn.classList.contains("toggled")) {
+          mainBtn.classList.add("toggled");
+        } else {
+          mainBtn.classList.remove("toggled");
+        }
+      });
+      observer.observe(handBtn, { attributes: true, attributeFilter: ["class"] });
+    });
+  </script>
+
   </head>
 
   <body tabindex="1">
@@ -261,6 +300,9 @@ See https://github.com/adobe-type-tools/cmap-resources
                 <span id="numPages" class="toolbarLabel"></span>
               </div>
               <div id="toolbarViewerRight">
+                <button id="cursorHandToolMain" class="toolbarButton" title="Hand Tool" tabindex="30" style="display:inline-block">
+                </button>
+
                 <button id="presentationMode" class="toolbarButton hiddenLargeView" title="Switch to Presentation Mode" tabindex="31" data-l10n-id="presentation_mode">
                   <span data-l10n-id="presentation_mode_label">Presentation Mode</span>
                 </button>
