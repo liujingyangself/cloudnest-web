@@ -9,7 +9,7 @@ export interface User {
   username: string
   password: string
   base_path: string
-  role: UserRole
+  role: UserRole | number[]
   permission: number
   sso_id: string
   disabled: boolean
@@ -29,10 +29,17 @@ export const UserPermissions = [
   "webdav_manage",
 ] as const
 
+const hasRole = (user: User, role: UserRole): boolean => {
+  if (Array.isArray(user.role)) {
+    return user.role.includes(role)
+  }
+  return user.role === role
+}
+
 export const UserMethods = {
-  is_guest: (user: User) => user.role === UserRole.GUEST,
-  is_admin: (user: User) => user.role === UserRole.ADMIN,
-  is_general: (user: User) => user.role === UserRole.GENERAL,
+  is_guest: (user: User) => hasRole(user, UserRole.GUEST),
+  is_admin: (user: User) => hasRole(user, UserRole.ADMIN),
+  is_general: (user: User) => hasRole(user, UserRole.GENERAL),
   can: (user: User, permission: number) =>
     UserMethods.is_admin(user) || ((user.permission >> permission) & 1) == 1,
   // can_see_hides: (user: User) =>
