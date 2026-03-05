@@ -31,15 +31,19 @@ import {
 import { DeletePopover } from "../common/DeletePopover"
 import { Wether } from "~/components"
 
-const Role = (props: { role: number }) => {
+const Role = (props: { role: number | number[] }) => {
   const roles = [
     { name: "general", color: "info" },
     { name: "guest", color: "neutral" },
     { name: "admin", color: "accent" },
   ]
+  const roleIndex = () => {
+    const r = props.role
+    return Array.isArray(r) ? r[0] ?? 0 : r
+  }
   return (
-    <Badge colorScheme={roles[props.role].color as any}>
-      {roles[props.role].name}
+    <Badge colorScheme={roles[roleIndex()]?.color as any ?? "info"}>
+      {roles[roleIndex()]?.name ?? "unknown"}
     </Badge>
   )
 }
