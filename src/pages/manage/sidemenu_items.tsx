@@ -46,7 +46,7 @@ export const side_menu_items: SideMenuItem[] = [
         title: "manage.sidemenu.site",
         icon: BsWindow,
         to: "/@manage/settings/site",
-        component: () => <CommonSettings group={Group.SITE} />,
+        component: lazy(() => import("./settings/SiteSettings")),
       },
       {
         title: "manage.sidemenu.style",
