@@ -10,17 +10,19 @@ import {
 } from "@hope-ui/solid"
 import { MaybeLoading, FolderChooseInput } from "~/components"
 import { useFetch, useRouter, useT } from "~/hooks"
-import { handleResp, notify, r } from "~/utils"
+import { handleResp, handleRespWithoutNotify, notify, r } from "~/utils"
 import {
   PEmptyResp,
+  PPageResp,
   PResp,
+  Role,
   User,
   UserMethods,
   UserPermissions,
   UserRole,
 } from "~/types"
 import { createStore } from "solid-js/store"
-import { For, Show } from "solid-js"
+import { createSignal, For, Show } from "solid-js"
 
 const Permission = (props: {
   can: boolean
@@ -48,6 +50,29 @@ const Permission = (props: {
   )
 }
 
+const RoleToggle = (props: {
+  label: string
+  checked: boolean
+  onChange: (val: boolean) => void
+}) => (
+  <FormControl
+    display="inline-flex"
+    flexDirection="row"
+    alignItems="center"
+    gap="$2"
+    rounded="$md"
+    shadow="$md"
+    p="$2"
+    w="fit-content"
+  >
+    <FormLabel mb="0">{props.label}</FormLabel>
+    <Checkbox
+      checked={props.checked}
+      onChange={() => props.onChange(!props.checked)}
+    />
+  </FormControl>
+)
+
 const AddOrEdit = () => {
   const t = useT()
   const { params, back } = useRouter()
@@ -57,9 +82,9 @@ const AddOrEdit = () => {
     username: "",
     password: "",
     base_path: "",
-    // `role` is a list of role ids since v3.46.0. The form has no role picker,
-    // so a new user is always created as a general user; the server maps the
-    // legacy GENERAL constant onto the actual "general" role id.
+    // Placeholder until the role list loads and selects a real id. If that
+    // request fails the server maps this legacy GENERAL constant onto the
+    // actual "general" role, so creating a user still works.
     role: [UserRole.GENERAL],
     permission: 0,
     disabled: false,
@@ -75,6 +100,37 @@ const AddOrEdit = () => {
   }
   if (id) {
     initEdit()
+  }
+
+  const [roles, setRoles] = createSignal<Role[]>([])
+  const [, getRoles] = useFetch(
+    (): PPageResp<Role> => r.get("/admin/role/list"),
+  )
+  const initRoles = async () => {
+    const resp = await getRoles()
+    // Not being able to list roles must not raise an error toast of its own —
+    // the rest of the form stays usable.
+    handleRespWithoutNotify(resp, (data) => {
+      setRoles(data.content)
+      if (id) return
+      const preset =
+        data.content.find((role) => role.default) ??
+        data.content.find((role) => role.name === "general")
+      if (preset) setUser("role", [preset.id])
+    })
+  }
+  initRoles()
+
+  // The server refuses to assign guest or admin, so neither is offered here.
+  const assignableRoles = () =>
+    roles().filter(
+      (role) => role.id !== UserRole.GUEST && role.id !== UserRole.ADMIN,
+    )
+  const selectedRoles = () =>
+    Array.isArray(user.role) ? user.role : [user.role]
+  const toggleRole = (roleId: number, checked: boolean) => {
+    const rest = selectedRoles().filter((selected) => selected !== roleId)
+    setUser("role", checked ? [...rest, roleId].sort((a, b) => a - b) : rest)
   }
   const [okLoading, ok] = useFetch((): PEmptyResp => {
     return r.post(`/admin/user/${id ? "update" : "create"}`, user)
@@ -119,6 +175,24 @@ const AddOrEdit = () => {
             onlyFolder
           />
         </FormControl>
+        <Show when={!UserMethods.is_guest(user) && !UserMethods.is_admin(user)}>
+          <FormControl w="$full" required>
+            <FormLabel display="flex" alignItems="center">
+              {t(`users.role`)}
+            </FormLabel>
+            <Flex w="$full" wrap="wrap" gap="$2">
+              <For each={assignableRoles()}>
+                {(role) => (
+                  <RoleToggle
+                    label={role.name}
+                    checked={selectedRoles().includes(role.id)}
+                    onChange={(val) => toggleRole(role.id, val)}
+                  />
+                )}
+              </For>
+            </Flex>
+          </FormControl>
+        </Show>
         <FormControl w="$full" required>
           <FormLabel display="flex" alignItems="center">
             {t(`users.permission`)}
