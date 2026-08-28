@@ -4,11 +4,22 @@ export enum UserRole {
   ADMIN,
 }
 
+// A role row from /admin/role/list. Since v3.46.0 a user's `role` holds role
+// ids from this table, not the UserRole constants above: those only line up by
+// coincidence for the seeded guest (1) and admin (2) roles.
+export interface Role {
+  id: number
+  name: string
+  description: string
+  default: boolean
+}
+
 export interface User {
   id: number
   username: string
   password: string
   base_path: string
+  // number only for records predating the multi-role migration
   role: UserRole | number[]
   permission: number
   sso_id: string

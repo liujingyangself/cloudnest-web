@@ -20,31 +20,45 @@ import {
   useRouter,
   useT,
 } from "~/hooks"
-import { handleResp, notify, r } from "~/utils"
+import { handleResp, handleRespWithoutNotify, notify, r } from "~/utils"
 import {
   UserPermissions,
   User,
   UserMethods,
   PPageResp,
   PEmptyResp,
+  Role,
 } from "~/types"
 import { DeletePopover } from "../common/DeletePopover"
 import { Wether } from "~/components"
 
-const Role = (props: { role: number | number[] }) => {
-  const roles = [
-    { name: "general", color: "info" },
-    { name: "guest", color: "neutral" },
-    { name: "admin", color: "accent" },
-  ]
-  const roleIndex = () => {
-    const r = props.role
-    return Array.isArray(r) ? r[0] ?? 0 : r
-  }
+const ROLE_COLORS: Record<string, string> = {
+  general: "info",
+  guest: "neutral",
+  admin: "accent",
+}
+
+// Role ids are rows in the roles table, so they cannot be resolved to a name
+// without the role list. `names` is empty until that request lands, and stays
+// empty if it fails, hence the `#id` fallback.
+const RoleBadges = (props: {
+  role: number | number[]
+  names: Record<number, string>
+}) => {
+  const ids = () => (Array.isArray(props.role) ? props.role : [props.role])
   return (
-    <Badge colorScheme={roles[roleIndex()]?.color as any ?? "info"}>
-      {roles[roleIndex()]?.name ?? "unknown"}
-    </Badge>
+    <HStack spacing="$1">
+      <For each={ids()}>
+        {(id) => {
+          const name = () => props.names[id] ?? `#${id}`
+          return (
+            <Badge colorScheme={(ROLE_COLORS[name()] ?? "info") as any}>
+              {name()}
+            </Badge>
+          )
+        }}
+      </For>
+    </HStack>
   )
 }
 
@@ -76,9 +90,20 @@ const Users = () => {
     (): PPageResp<User> => r.get("/admin/user/list"),
   )
   const [users, setUsers] = createSignal<User[]>([])
+  const [, getRoles] = useFetch(
+    (): PPageResp<Role> => r.get("/admin/role/list"),
+  )
+  const [roleNames, setRoleNames] = createSignal<Record<number, string>>({})
   const refresh = async () => {
-    const resp = await getUsers()
-    handleResp(resp, (data) => setUsers(data.content))
+    const [usersResp, rolesResp] = await Promise.all([getUsers(), getRoles()])
+    handleResp(usersResp, (data) => setUsers(data.content))
+    // The user list stays usable without role names, so failing to load them
+    // must not raise an error toast of its own.
+    handleRespWithoutNotify(rolesResp, (data) =>
+      setRoleNames(
+        Object.fromEntries(data.content.map((role) => [role.id, role.name])),
+      ),
+    )
   }
   refresh()
 
@@ -131,7 +156,7 @@ const Users = () => {
                   <Td>{user.username}</Td>
                   <Td>{user.base_path}</Td>
                   <Td>
-                    <Role role={user.role} />
+                    <RoleBadges role={user.role} names={roleNames()} />
                   </Td>
                   <Td>
                     <Permissions user={user} />
