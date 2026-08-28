@@ -11,7 +11,14 @@ import {
 import { MaybeLoading, FolderChooseInput } from "~/components"
 import { useFetch, useRouter, useT } from "~/hooks"
 import { handleResp, notify, r } from "~/utils"
-import { PEmptyResp, PResp, User, UserMethods, UserPermissions } from "~/types"
+import {
+  PEmptyResp,
+  PResp,
+  User,
+  UserMethods,
+  UserPermissions,
+  UserRole,
+} from "~/types"
 import { createStore } from "solid-js/store"
 import { For, Show } from "solid-js"
 
@@ -50,7 +57,10 @@ const AddOrEdit = () => {
     username: "",
     password: "",
     base_path: "",
-    role: 0,
+    // `role` is a list of role ids since v3.46.0. The form has no role picker,
+    // so a new user is always created as a general user; the server maps the
+    // legacy GENERAL constant onto the actual "general" role id.
+    role: [UserRole.GENERAL],
     permission: 0,
     disabled: false,
     sso_id: "",
