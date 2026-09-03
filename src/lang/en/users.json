@@ -48,5 +48,9 @@
   "webauthn": "WebAuthn",
   "add_webauthn": "Add a Webauthn credential",
   "add_webauthn_success": "Webauthn credential successfully added!",
-  "webauthn_not_supported": "Webauthn is not supported in your browser or you are in an unsafe origin"
+  "webauthn_not_supported": "Webauthn is not supported in your browser or you are in an unsafe origin",
+  "filter_all": "All users",
+  "filter_soon": "Expiring soon",
+  "filter_expired": "Expired",
+  "filter_never": "Never expires"
 }

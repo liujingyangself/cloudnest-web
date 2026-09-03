@@ -44,5 +44,42 @@
   "created_at": "Created",
   "total_codes": "{{n}} in total",
   "no_codes": "No redeem codes yet.",
-  "click_to_copy": "Click to copy"
+  "click_to_copy": "Click to copy",
+  "user": "User",
+  "pick_user": "Select a user",
+  "grant": "Grant a subscription",
+  "grant-tips": "Give a user a plan directly, without generating a code. For offline payments or make-goods.",
+  "grant_pick_both": "Select both a user and a plan",
+  "remark": "Remark",
+  "remark-tips": "e.g. paid by transfer",
+  "start_time": "Start",
+  "end_time": "End",
+  "sub_status": {
+    "active": "Active",
+    "expired": "Expired",
+    "cancelled": "Cancelled"
+  },
+  "total_subs": "{{n}} in total",
+  "no_subs": "No subscriptions yet.",
+  "tx_type": "Type",
+  "amount": "Amount",
+  "tx_types": {
+    "subscription": "Purchase",
+    "redeem_code": "Redeem code",
+    "manual": "Manual grant"
+  },
+  "tx_status": {
+    "completed": "Completed",
+    "pending": "Pending",
+    "failed": "Failed",
+    "refunded": "Refunded"
+  },
+  "total_txns": "{{n}} in total",
+  "no_txns": "No transactions yet.",
+  "export_batch-tips": "Batch label",
+  "export_unused": "Export unused",
+  "export_all": "Export batch",
+  "batch_required": "Enter a batch label first",
+  "no_codes_in_batch": "No matching codes in that batch",
+  "exported_n": "Copied {{n}} codes to the clipboard"
 }

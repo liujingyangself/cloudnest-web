@@ -129,6 +129,39 @@ const RedeemCodes = () => {
     (id: number): PEmptyResp => r.post(`/admin/redeem/delete?id=${id}`),
   )
 
+  // 按批次取回整批。生成时的弹窗只有那一次机会，事后想再拿走整批就得靠这里；
+  // list_by_batch 不分页，正好适合导出。
+  const [batchFilter, setBatchFilter] = createSignal("")
+  const [exporting, exportBatch] = useFetch(
+    (batch: string): PResp<RedeemCode[]> =>
+      r.get(`/admin/redeem/list_by_batch?batch=${encodeURIComponent(batch)}`),
+  )
+
+  const doExport = async (unusedOnly: boolean) => {
+    const batch = batchFilter().trim()
+    if (!batch) {
+      notify.warning(t("billing.batch_required"))
+      return
+    }
+    handleResp(await exportBatch(batch), (data) => {
+      let list = data ?? []
+      if (unusedOnly) list = list.filter((c) => !c.used_by)
+      if (!list.length) {
+        notify.warning(t("billing.no_codes_in_batch"))
+        return
+      }
+      copy(list.map((c) => c.code).join("\n"))
+      notify.success(t("billing.exported_n", { n: String(list.length) }))
+    })
+  }
+
+  // 列出已知批次，省得管理员回想自己当初填了什么
+  const batches = createMemo(() => {
+    const seen = new Set<string>()
+    codes().forEach((c) => c.batch_label && seen.add(c.batch_label))
+    return Array.from(seen)
+  })
+
   const status = (code: RedeemCode) => {
     if (code.used_by) {
       const name = userNames()[code.used_by] ?? `#${code.used_by}`
@@ -150,8 +183,6 @@ const RedeemCodes = () => {
         p="$4"
         rounded="$lg"
         shadow="$md"
-        position="relative"
-        zIndex={1}
       >
         <Heading size="lg">{t("billing.generate")}</Heading>
         <Show
@@ -160,13 +191,7 @@ const RedeemCodes = () => {
             <Box color="$warning10">{t("billing.no_plans_for_codes")}</Box>
           }
         >
-          <SimpleGrid
-            w="$full"
-            columns={{ "@initial": 1, "@md": 4 }}
-            gap="$3"
-            position="relative"
-            zIndex={2}
-          >
+          <SimpleGrid w="$full" columns={{ "@initial": 1, "@md": 4 }} gap="$3">
             <FormControl display="flex" flexDirection="column" required>
               <FormLabel>{t("billing.plan")}</FormLabel>
               <Select value={planId()} onChange={onPickPlan}>
@@ -228,7 +253,7 @@ const RedeemCodes = () => {
       </VStack>
 
       {/* --- list ---------------------------------------------------------- */}
-      <HStack spacing="$2">
+      <HStack spacing="$2" wrap="wrap">
         <Button
           colorScheme="accent"
           loading={loading()}
@@ -239,6 +264,28 @@ const RedeemCodes = () => {
         <Box color="$neutral10">
           {t("billing.total_codes", { n: String(total()) })}
         </Box>
+        <Input
+          w="$48"
+          size="sm"
+          list="redeem-batches"
+          value={batchFilter()}
+          placeholder={t("billing.export_batch-tips")}
+          onInput={(e) => setBatchFilter(e.currentTarget.value)}
+        />
+        <datalist id="redeem-batches">
+          <For each={batches()}>{(b) => <option value={b} />}</For>
+        </datalist>
+        <Button size="sm" loading={exporting()} onClick={() => doExport(true)}>
+          {t("billing.export_unused")}
+        </Button>
+        <Button
+          size="sm"
+          colorScheme="neutral"
+          loading={exporting()}
+          onClick={() => doExport(false)}
+        >
+          {t("billing.export_all")}
+        </Button>
       </HStack>
 
       <Show

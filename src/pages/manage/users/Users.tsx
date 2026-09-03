@@ -3,6 +3,14 @@ import {
   Box,
   Button,
   HStack,
+  Select,
+  SelectContent,
+  SelectIcon,
+  SelectListbox,
+  SelectOption,
+  SelectOptionText,
+  SelectTrigger,
+  SelectValue,
   Table,
   Tbody,
   Td,
@@ -12,7 +20,7 @@ import {
   Tr,
   VStack,
 } from "@hope-ui/solid"
-import { createSignal, For, Show } from "solid-js"
+import { createMemo, createSignal, For, Show } from "solid-js"
 import {
   useFetch,
   useListFetch,
@@ -119,10 +127,32 @@ const ExpireCell = (props: { user: User }) => {
   )
 }
 
+// 按到期状态筛选。用户规模是几十量级，前端筛足够快，不值得为此给
+// /admin/user/list 加查询参数。
+type ExpireFilter = "all" | "expired" | "soon" | "never"
+
+const matchesFilter = (user: User, filter: ExpireFilter): boolean => {
+  switch (filter) {
+    case "expired":
+      return isExpired(user.expires_at)
+    case "soon":
+      return (
+        !isExpired(user.expires_at) &&
+        !!user.expires_at &&
+        daysUntilExpire(user.expires_at) <= EXPIRE_SOON_DAYS
+      )
+    case "never":
+      return !user.expires_at
+    default:
+      return true
+  }
+}
+
 const Users = () => {
   const t = useT()
   useManageTitle("manage.sidemenu.users")
   const { to } = useRouter()
+  const [filter, setFilter] = createSignal<ExpireFilter>("all")
   const [getUsersLoading, getUsers] = useFetch(
     (): PPageResp<User> => r.get("/admin/user/list"),
   )
@@ -143,6 +173,24 @@ const Users = () => {
     )
   }
   refresh()
+
+  const shownUsers = createMemo(() => {
+    const list = users().filter((u) => matchesFilter(u, filter()))
+    // 快到期的排前面，永不过期的沉底：这正是"谁该催费"的顺序。
+    return list.sort((a, b) => {
+      if (!a.expires_at && !b.expires_at) return a.id - b.id
+      if (!a.expires_at) return 1
+      if (!b.expires_at) return -1
+      return new Date(a.expires_at).getTime() - new Date(b.expires_at).getTime()
+    })
+  })
+
+  const counts = createMemo(() => ({
+    all: users().length,
+    expired: users().filter((u) => matchesFilter(u, "expired")).length,
+    soon: users().filter((u) => matchesFilter(u, "soon")).length,
+    never: users().filter((u) => matchesFilter(u, "never")).length,
+  }))
 
   const [deleting, deleteUser] = useListFetch(
     (id: number): PEmptyResp => r.post(`/admin/user/delete?id=${id}`),
@@ -167,6 +215,39 @@ const Users = () => {
         >
           {t("global.add")}
         </Button>
+        <Select value={filter()} onChange={setFilter}>
+          <SelectTrigger w="$56">
+            <SelectValue />
+            <SelectIcon />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectListbox>
+              <For each={["all", "soon", "expired", "never"] as ExpireFilter[]}>
+                {(f) => (
+                  <SelectOption value={f}>
+                    <SelectOptionText>
+                      {t(`users.filter_${f}`)}
+                    </SelectOptionText>
+                  </SelectOption>
+                )}
+              </For>
+            </SelectListbox>
+          </SelectContent>
+        </Select>
+      </HStack>
+      <HStack spacing="$3" color="$neutral11" fontSize="$sm" wrap="wrap">
+        <Box>
+          {t("users.filter_expired")}: {counts().expired}
+        </Box>
+        <Box>
+          {t("users.filter_soon")}: {counts().soon}
+        </Box>
+        <Box>
+          {t("users.filter_never")}: {counts().never}
+        </Box>
+        <Box>
+          {t("users.filter_all")}: {counts().all}
+        </Box>
       </HStack>
       <Box w="$full" overflowX="auto">
         <Table highlightOnHover dense>
@@ -188,7 +269,7 @@ const Users = () => {
             </Tr>
           </Thead>
           <Tbody>
-            <For each={users()}>
+            <For each={shownUsers()}>
               {(user) => (
                 <Tr>
                   <Td>{user.username}</Td>
