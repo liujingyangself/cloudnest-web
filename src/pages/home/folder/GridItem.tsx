@@ -12,7 +12,7 @@ import {
   selectIndex,
 } from "~/store"
 import { ObjType, StoreObj } from "~/types"
-import { bus, hoverColor } from "~/utils"
+import { bus, displayName, hoverColor } from "~/utils"
 import { getIconByObj } from "~/utils/icon"
 import {
   ItemCheckbox,
@@ -166,7 +166,7 @@ export const GridItem = (props: { obj: StoreObj; index: number }) => {
           fontSize="$sm"
           title={props.obj.name}
         >
-          {props.obj.name}
+          {displayName(props.obj.name, props.obj.is_dir)}
         </Text>
       </VStack>
     </Motion.div>

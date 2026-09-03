@@ -13,7 +13,7 @@ import {
   selectIndex,
 } from "~/store"
 import { ObjType, StoreObj } from "~/types"
-import { bus, formatDate, getFileSize, hoverColor } from "~/utils"
+import { bus, displayName, formatDate, getFileSize, hoverColor } from "~/utils"
 import { getIconByObj } from "~/utils/icon"
 import {
   ItemCheckbox,
@@ -146,7 +146,7 @@ export const ListItem = (props: { obj: StoreObj; index: number }) => {
             }}
             title={props.obj.name}
           >
-            {props.obj.name}
+            {displayName(props.obj.name, props.obj.is_dir)}
           </Text>
         </HStack>
         <Text class="size" w={cols[1].w} textAlign={cols[1].textAlign as any}>
