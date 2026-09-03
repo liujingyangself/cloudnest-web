@@ -12,7 +12,7 @@ import {
   Tr,
   VStack,
 } from "@hope-ui/solid"
-import { createSignal, For } from "solid-js"
+import { createSignal, For, Show } from "solid-js"
 import {
   useFetch,
   useListFetch,
@@ -20,7 +20,15 @@ import {
   useRouter,
   useT,
 } from "~/hooks"
-import { handleResp, handleRespWithoutNotify, notify, r } from "~/utils"
+import {
+  daysUntilExpire,
+  formatDate,
+  handleResp,
+  handleRespWithoutNotify,
+  isExpired,
+  notify,
+  r,
+} from "~/utils"
 import {
   UserPermissions,
   User,
@@ -79,6 +87,35 @@ const Permissions = (props: { user: User }) => {
         )}
       </For>
     </HStack>
+  )
+}
+
+// Deadlines are what admins scan this column for, so an expired or
+// nearly-expired account has to stand out from a wall of dates.
+const EXPIRE_SOON_DAYS = 7
+
+const ExpireCell = (props: { user: User }) => {
+  const t = useT()
+  const expiresAt = () => props.user.expires_at
+  const color = () => {
+    if (!expiresAt()) return undefined
+    if (isExpired(expiresAt())) return "$danger9"
+    if (daysUntilExpire(expiresAt()) <= EXPIRE_SOON_DAYS) return "$warning9"
+    return undefined
+  }
+  return (
+    <Show
+      when={expiresAt()}
+      fallback={<Box color="$neutral9">{t("users.expire_never")}</Box>}
+    >
+      <Box color={color()} css={{ whiteSpace: "nowrap" }}>
+        {formatDate(expiresAt()!)}
+        <Show when={isExpired(expiresAt())}>
+          {" "}
+          <Badge colorScheme="danger">{t("users.expired")}</Badge>
+        </Show>
+      </Box>
+    </Show>
   )
 }
 
@@ -141,6 +178,7 @@ const Users = () => {
                   "base_path",
                   "role",
                   "permission",
+                  "expires_at",
                   "available",
                 ]}
               >
@@ -160,6 +198,9 @@ const Users = () => {
                   </Td>
                   <Td>
                     <Permissions user={user} />
+                  </Td>
+                  <Td>
+                    <ExpireCell user={user} />
                   </Td>
                   <Td>
                     <Wether yes={!user.disabled} />
