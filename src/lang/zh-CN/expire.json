@@ -7,5 +7,7 @@
   "redeem": "兑换",
   "redeem_success": "续期成功，正在恢复访问",
   "contact_admin": "没有兑换码？请联系管理员获取。",
-  "logout": "退出登录"
+  "logout": "退出登录",
+  "plans_label": "可选套餐",
+  "n_days": "{{n}} 天"
 }
