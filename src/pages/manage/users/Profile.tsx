@@ -16,7 +16,7 @@ import {
   Text,
 } from "@hope-ui/solid"
 import { createSignal, For, JSXElement, onCleanup, Show } from "solid-js"
-import { LinkWithBase, MaybeLoading } from "~/components"
+import { LinkWithBase, MaybeLoading, MembershipCard } from "~/components"
 import { useFetch, useManageTitle, useRouter, useT } from "~/hooks"
 import { setMe, me, getSettingBool } from "~/store"
 import { PEmptyResp, UserMethods, UserPermissions, PResp } from "~/types"
@@ -132,6 +132,11 @@ const Profile = () => {
   }
   return (
     <VStack w="$full" spacing="$4" alignItems="start">
+      {/* 会员状态放在最上面：这是普通用户来这个页面最常想确认的东西，
+          也是他们唯一能自助续期的入口。游客没有会员概念，不显示。 */}
+      <Show when={!UserMethods.is_guest(me()) && !UserMethods.is_admin(me())}>
+        <MembershipCard />
+      </Show>
       <Show
         when={!UserMethods.is_guest(me())}
         fallback={

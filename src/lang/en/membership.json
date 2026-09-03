@@ -1,0 +1,18 @@
+{
+  "title": "My membership",
+  "never_expires": "No expiry",
+  "expired": "Expired",
+  "days_left": "{{n}} days left",
+  "current_plan": "Current plan",
+  "no_plan": "No active plan",
+  "expires_at": "Expires at",
+  "never_expires_tips": "Your account has no expiry.",
+  "renew_reminder": "Expires in {{n}} days — renew early to avoid an interruption.",
+  "redeem_label": "Renew with a redeem code",
+  "redeem_placeholder": "Enter your redeem code",
+  "redeem": "Redeem",
+  "redeem_success": "Renewed",
+  "redeem_tips": "Renewing extends your current deadline, so redeeming early wastes nothing.",
+  "plans_label": "Available plans",
+  "n_days": "{{n}} days"
+}
