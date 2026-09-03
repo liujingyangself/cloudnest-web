@@ -9,7 +9,7 @@ import { Link } from "@solidjs/router"
 import { createMemo, For, Show } from "solid-js"
 import { usePath, useRouter, useT } from "~/hooks"
 import { getSetting, local } from "~/store"
-import { encodePath, hoverColor, joinBase } from "~/utils"
+import { displayName, encodePath, hoverColor, joinBase } from "~/utils"
 
 export const Nav = () => {
   const { pathname } = useRouter()
@@ -56,8 +56,10 @@ export const Nav = () => {
             .slice(0, i() + 1)
             .join("/")
           const href = encodePath(path)
-          let text = () => name
-          if (text() === "") {
+          // 面包屑上的每一段都是目录，和列表里保持同一套显示名，
+          // 否则会出现列表写「2026年9月」而面包屑写「202609」的割裂。
+          let text = () => displayName(name, true)
+          if (name === "") {
             text = () => getSetting("home_icon") + t("manage.sidemenu.home")
           }
           return (
