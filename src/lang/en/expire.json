@@ -7,5 +7,7 @@
   "redeem": "Redeem",
   "redeem_success": "Renewed, restoring access",
   "contact_admin": "No code? Contact the administrator to get one.",
-  "logout": "Log out"
+  "logout": "Log out",
+  "plans_label": "Available plans",
+  "n_days": "{{n}} days"
 }

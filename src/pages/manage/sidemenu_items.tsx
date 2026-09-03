@@ -20,7 +20,13 @@ import { OcWorkflow2 } from "solid-icons/oc"
 import { IoCopy, IoHome, IoMagnetOutline } from "solid-icons/io"
 import { Component, lazy } from "solid-js"
 import { Group, UserRole } from "~/types"
-import { FaSolidBook, FaSolidDatabase } from "solid-icons/fa"
+import {
+  FaSolidBook,
+  FaSolidDatabase,
+  FaSolidGift,
+  FaSolidLayerGroup,
+} from "solid-icons/fa"
+import { BsCreditCard2FrontFill } from "solid-icons/bs"
 
 export type SideMenuItem = SideMenuItemProps & {
   component?: Component
@@ -134,6 +140,25 @@ export const side_menu_items: SideMenuItem[] = [
     icon: BsPersonCircle,
     to: "/@manage/users",
     component: lazy(() => import("./users/Users")),
+  },
+  {
+    title: "manage.sidemenu.billing",
+    icon: BsCreditCard2FrontFill,
+    to: "/@manage/billing",
+    children: [
+      {
+        title: "manage.sidemenu.plans",
+        icon: FaSolidLayerGroup,
+        to: "/@manage/billing/plans",
+        component: lazy(() => import("./billing/Plans")),
+      },
+      {
+        title: "manage.sidemenu.redeem_codes",
+        icon: FaSolidGift,
+        to: "/@manage/billing/redeem",
+        component: lazy(() => import("./billing/RedeemCodes")),
+      },
+    ],
   },
   {
     title: "manage.sidemenu.storages",
