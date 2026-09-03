@@ -279,19 +279,23 @@ const Login = () => {
             {ldapLoginTips}
           </Checkbox>
         </Show>
-        <Button
-          w="$full"
-          colorScheme="accent"
-          onClick={() => {
-            changeToken()
-            to(
-              decodeURIComponent(searchParams.redirect || base_path || "/"),
-              true,
-            )
-          }}
-        >
-          {t("login.use_guest")}
-        </Button>
+        {/* 站点关闭匿名浏览时这个按钮是条死路：清掉 token 后立刻 401，
+            再被弹回登录页。后端在 /public/settings 里给出真实状态。 */}
+        <Show when={getSettingBool("guest_browse_enabled")}>
+          <Button
+            w="$full"
+            colorScheme="accent"
+            onClick={() => {
+              changeToken()
+              to(
+                decodeURIComponent(searchParams.redirect || base_path || "/"),
+                true,
+              )
+            }}
+          >
+            {t("login.use_guest")}
+          </Button>
+        </Show>
         <Flex
           mt="$2"
           justifyContent="space-evenly"
