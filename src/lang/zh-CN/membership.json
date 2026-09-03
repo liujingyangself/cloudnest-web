@@ -1,0 +1,18 @@
+{
+  "title": "我的会员",
+  "never_expires": "永久有效",
+  "expired": "已到期",
+  "days_left": "剩余 {{n}} 天",
+  "current_plan": "当前套餐",
+  "no_plan": "当前没有生效中的套餐",
+  "expires_at": "到期时间",
+  "never_expires_tips": "你的账号没有到期限制。",
+  "renew_reminder": "还有 {{n}} 天到期，建议提前续期，避免中断。",
+  "redeem_label": "使用兑换码续期",
+  "redeem_placeholder": "请输入兑换码",
+  "redeem": "兑换",
+  "redeem_success": "续期成功",
+  "redeem_tips": "续期会在现有到期时间上顺延，提前兑换不会浪费剩余天数。",
+  "plans_label": "可选套餐",
+  "n_days": "{{n}} 天"
+}
