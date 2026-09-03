@@ -1,4 +1,5 @@
 import {
+  Box,
   Button,
   Checkbox,
   Flex,
@@ -10,7 +11,15 @@ import {
 } from "@hope-ui/solid"
 import { MaybeLoading, FolderChooseInput } from "~/components"
 import { useFetch, useRouter, useT } from "~/hooks"
-import { handleResp, handleRespWithoutNotify, notify, r } from "~/utils"
+import {
+  deadlineInDays,
+  fromDatetimeLocal,
+  handleResp,
+  handleRespWithoutNotify,
+  notify,
+  r,
+  toDatetimeLocal,
+} from "~/utils"
 import {
   PEmptyResp,
   PPageResp,
@@ -23,6 +32,9 @@ import {
 } from "~/types"
 import { createStore } from "solid-js/store"
 import { createSignal, For, Show } from "solid-js"
+
+// Quick grants, so the common cases need no date arithmetic.
+const EXPIRE_PRESETS = [30, 90, 365] as const
 
 const Permission = (props: {
   can: boolean
@@ -89,14 +101,23 @@ const AddOrEdit = () => {
     permission: 0,
     disabled: false,
     sso_id: "",
+    expires_at: null,
   })
   const [userLoading, loadUser] = useFetch(
     (): PResp<User> => r.get(`/admin/user/get?id=${id}`),
   )
 
+  // The account deadline is edited separately from the rest of the form: the
+  // server treats an absent expires_at on /update as "unchanged" so that an
+  // older web build cannot silently wipe a paid membership, which means
+  // clearing it has to go through /set_expire explicitly.
+  const [loadedExpire, setLoadedExpire] = createSignal<string | null>(null)
   const initEdit = async () => {
     const resp = await loadUser()
-    handleResp(resp, setUser)
+    handleResp(resp, (data) => {
+      setUser(data)
+      setLoadedExpire(data.expires_at ?? null)
+    })
   }
   if (id) {
     initEdit()
@@ -135,6 +156,15 @@ const AddOrEdit = () => {
   const [okLoading, ok] = useFetch((): PEmptyResp => {
     return r.post(`/admin/user/${id ? "update" : "create"}`, user)
   })
+  const [, saveExpire] = useFetch(
+    (): PEmptyResp =>
+      r.post("/admin/user/set_expire", {
+        id: Number(id),
+        ...(user.expires_at
+          ? { expires_at: user.expires_at }
+          : { never: true }),
+      }),
+  )
   return (
     <MaybeLoading loading={userLoading()}>
       <VStack w="$full" alignItems="start" spacing="$2">
@@ -215,6 +245,48 @@ const AddOrEdit = () => {
             </For>
           </Flex>
         </FormControl>
+        <FormControl w="$full" display="flex" flexDirection="column">
+          <FormLabel for="expires_at" display="flex" alignItems="center">
+            {t(`users.expires_at`)}
+          </FormLabel>
+          <Flex w="$full" wrap="wrap" gap="$2" alignItems="center">
+            <Input
+              id="expires_at"
+              type="datetime-local"
+              w="fit-content"
+              value={toDatetimeLocal(user.expires_at)}
+              onInput={(e) =>
+                setUser("expires_at", fromDatetimeLocal(e.currentTarget.value))
+              }
+            />
+            <For each={EXPIRE_PRESETS}>
+              {(days) => (
+                <Button
+                  size="sm"
+                  colorScheme="neutral"
+                  onClick={() =>
+                    setUser("expires_at", deadlineInDays(days, user.expires_at))
+                  }
+                >
+                  {t("users.expire_add_days", { days: String(days) })}
+                </Button>
+              )}
+            </For>
+            <Button
+              size="sm"
+              colorScheme="neutral"
+              disabled={!user.expires_at}
+              onClick={() => setUser("expires_at", null)}
+            >
+              {t("users.expire_never")}
+            </Button>
+          </Flex>
+          <Box color="$neutral10" fontSize="$sm" mt="$1">
+            {user.expires_at
+              ? t("users.expire_tips")
+              : t("users.expire_never_tips")}
+          </Box>
+        </FormControl>
         <FormControl w="fit-content" display="flex">
           <Checkbox
             css={{ whiteSpace: "nowrap" }}
@@ -232,7 +304,17 @@ const AddOrEdit = () => {
           onClick={async () => {
             const resp = await ok()
             // TODO maybe can use handleRespWithNotifySuccess
-            handleResp(resp, () => {
+            handleResp(resp, async () => {
+              // On create the deadline rides along with the new user; on edit
+              // it needs its own call, and only when it actually changed.
+              if (id && (user.expires_at ?? null) !== loadedExpire()) {
+                const expireResp = await saveExpire()
+                let failed = false
+                handleResp(expireResp, undefined, () => {
+                  failed = true
+                })
+                if (failed) return
+              }
               notify.success(t("global.save_success"))
               back()
             })

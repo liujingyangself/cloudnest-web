@@ -1,0 +1,11 @@
+{
+  "title": "账号已到期",
+  "description": "您的账号使用期限已结束，续期后即可恢复访问。",
+  "expired_at": "到期时间",
+  "redeem_label": "使用兑换码续期",
+  "redeem_placeholder": "请输入兑换码",
+  "redeem": "兑换",
+  "redeem_success": "续期成功，正在恢复访问",
+  "contact_admin": "没有兑换码？请联系管理员获取。",
+  "logout": "退出登录"
+}

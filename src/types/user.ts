@@ -24,6 +24,8 @@ export interface User {
   permission: number
   sso_id: string
   disabled: boolean
+  // Absolute account deadline (RFC3339); null means the account never expires.
+  expires_at: string | null
   // otp: boolean;
 }
 

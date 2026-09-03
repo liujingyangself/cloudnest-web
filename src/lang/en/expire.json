@@ -1,0 +1,11 @@
+{
+  "title": "Account expired",
+  "description": "Your account's validity period has ended. Renew it to restore access.",
+  "expired_at": "Expired at",
+  "redeem_label": "Renew with a redeem code",
+  "redeem_placeholder": "Enter your redeem code",
+  "redeem": "Redeem",
+  "redeem_success": "Renewed, restoring access",
+  "contact_admin": "No code? Contact the administrator to get one.",
+  "logout": "Log out"
+}
