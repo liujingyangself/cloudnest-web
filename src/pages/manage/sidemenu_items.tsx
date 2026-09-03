@@ -26,7 +26,8 @@ import {
   FaSolidGift,
   FaSolidLayerGroup,
 } from "solid-icons/fa"
-import { BsCreditCard2FrontFill } from "solid-icons/bs"
+import { BsCreditCard2FrontFill, BsReceipt } from "solid-icons/bs"
+import { FaSolidUsersGear } from "solid-icons/fa"
 
 export type SideMenuItem = SideMenuItemProps & {
   component?: Component
@@ -157,6 +158,18 @@ export const side_menu_items: SideMenuItem[] = [
         icon: FaSolidGift,
         to: "/@manage/billing/redeem",
         component: lazy(() => import("./billing/RedeemCodes")),
+      },
+      {
+        title: "manage.sidemenu.subscriptions",
+        icon: FaSolidUsersGear,
+        to: "/@manage/billing/subscriptions",
+        component: lazy(() => import("./billing/Subscriptions")),
+      },
+      {
+        title: "manage.sidemenu.transactions",
+        icon: BsReceipt,
+        to: "/@manage/billing/transactions",
+        component: lazy(() => import("./billing/Transactions")),
       },
     ],
   },

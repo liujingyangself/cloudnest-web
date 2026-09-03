@@ -48,5 +48,9 @@
   "webauthn": "WebAuthn",
   "add_webauthn": "添加 WebAuthn 凭证",
   "add_webauthn_success": "WebAuthn 凭证添加成功！",
-  "webauthn_not_supported": "您的浏览器不支持 WebAuthn 或当前处于不安全的来源"
+  "webauthn_not_supported": "您的浏览器不支持 WebAuthn 或当前处于不安全的来源",
+  "filter_all": "全部用户",
+  "filter_soon": "即将到期",
+  "filter_expired": "已到期",
+  "filter_never": "永不过期"
 }

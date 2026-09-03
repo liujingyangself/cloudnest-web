@@ -58,3 +58,50 @@ export const emptyPlan = (): Plan => ({
 
 /** -1 is stored for "unlimited"; the forms show it as an explicit choice. */
 export const UNLIMITED = -1
+
+/** Mirrors internal/model/subscription.go. */
+export interface UserSubscription {
+  id: number
+  user_id: number
+  plan_id: number
+  plan: Plan
+  start_time: string
+  end_time: string
+  /** active | expired | cancelled */
+  status: string
+  auto_renew: boolean
+  created_at: string
+  updated_at: string
+}
+
+/** Mirrors internal/model/transaction.go. */
+export interface Transaction {
+  id: number
+  user_id: number
+  plan_id: number
+  amount: number
+  currency: string
+  /** subscription | redeem_code | manual */
+  type: string
+  /** pending | completed | failed | refunded */
+  status: string
+  payment_gateway: string
+  external_id: string
+  redeem_code_id: number
+  remark: string
+  created_at: string
+  updated_at: string
+}
+
+export const SUB_STATUS_COLOR: Record<string, string> = {
+  active: "success",
+  expired: "neutral",
+  cancelled: "danger",
+}
+
+export const TX_STATUS_COLOR: Record<string, string> = {
+  completed: "success",
+  pending: "warning",
+  failed: "danger",
+  refunded: "neutral",
+}

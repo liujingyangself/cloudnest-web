@@ -44,5 +44,42 @@
   "created_at": "生成时间",
   "total_codes": "共 {{n}} 个",
   "no_codes": "还没有兑换码。",
-  "click_to_copy": "点击复制"
+  "click_to_copy": "点击复制",
+  "user": "用户",
+  "pick_user": "请选择用户",
+  "grant": "手动发放订阅",
+  "grant-tips": "不用生成兑换码，直接给某个用户开通套餐。适合线下收款或补偿。",
+  "grant_pick_both": "请先选择用户和套餐",
+  "remark": "备注",
+  "remark-tips": "如：微信转账补开",
+  "start_time": "开始时间",
+  "end_time": "结束时间",
+  "sub_status": {
+    "active": "生效中",
+    "expired": "已过期",
+    "cancelled": "已取消"
+  },
+  "total_subs": "共 {{n}} 条",
+  "no_subs": "还没有订阅记录。",
+  "tx_type": "类型",
+  "amount": "金额",
+  "tx_types": {
+    "subscription": "购买",
+    "redeem_code": "兑换码",
+    "manual": "手动发放"
+  },
+  "tx_status": {
+    "completed": "已完成",
+    "pending": "处理中",
+    "failed": "失败",
+    "refunded": "已退款"
+  },
+  "total_txns": "共 {{n}} 条",
+  "no_txns": "还没有交易记录。",
+  "export_batch-tips": "批次备注",
+  "export_unused": "导出未使用",
+  "export_all": "导出整批",
+  "batch_required": "请先填写批次备注",
+  "no_codes_in_batch": "该批次下没有符合条件的兑换码",
+  "exported_n": "已复制 {{n}} 个兑换码到剪贴板"
 }
