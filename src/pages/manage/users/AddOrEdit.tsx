@@ -13,11 +13,13 @@ import { MaybeLoading, FolderChooseInput } from "~/components"
 import { useFetch, useRouter, useT } from "~/hooks"
 import {
   deadlineInDays,
+  fromDateInput,
   fromDatetimeLocal,
   handleResp,
   handleRespWithoutNotify,
   notify,
   r,
+  toDateInput,
   toDatetimeLocal,
 } from "~/utils"
 import {
@@ -102,6 +104,9 @@ const AddOrEdit = () => {
     disabled: false,
     sso_id: "",
     expires_at: null,
+    // New members see content from today on; the server applies the same
+    // default, this just shows it.
+    content_from: fromDateInput(toDateInput(new Date().toISOString())),
   })
   const [userLoading, loadUser] = useFetch(
     (): PResp<User> => r.get(`/admin/user/get?id=${id}`),
@@ -112,11 +117,16 @@ const AddOrEdit = () => {
   // older web build cannot silently wipe a paid membership, which means
   // clearing it has to go through /set_expire explicitly.
   const [loadedExpire, setLoadedExpire] = createSignal<string | null>(null)
+  // Same arrangement for the content start day: /set_content_from.
+  const [loadedContentFrom, setLoadedContentFrom] = createSignal<string | null>(
+    null,
+  )
   const initEdit = async () => {
     const resp = await loadUser()
     handleResp(resp, (data) => {
       setUser(data)
       setLoadedExpire(data.expires_at ?? null)
+      setLoadedContentFrom(data.content_from ?? null)
     })
   }
   if (id) {
@@ -163,6 +173,13 @@ const AddOrEdit = () => {
         ...(user.expires_at
           ? { expires_at: user.expires_at }
           : { never: true }),
+      }),
+  )
+  const [, saveContentFrom] = useFetch(
+    (): PEmptyResp =>
+      r.post("/admin/user/set_content_from", {
+        id: Number(id),
+        content_from: user.content_from ?? null,
       }),
   )
   return (
@@ -287,6 +304,51 @@ const AddOrEdit = () => {
               : t("users.expire_never_tips")}
           </Box>
         </FormControl>
+        <Show when={!UserMethods.is_guest(user) && !UserMethods.is_admin(user)}>
+          <FormControl w="$full" display="flex" flexDirection="column">
+            <FormLabel for="content_from" display="flex" alignItems="center">
+              {t("users.content_from")}
+            </FormLabel>
+            <Flex w="$full" wrap="wrap" gap="$2" alignItems="center">
+              <Input
+                id="content_from"
+                type="date"
+                w="fit-content"
+                value={toDateInput(user.content_from)}
+                onInput={(e) =>
+                  setUser("content_from", fromDateInput(e.currentTarget.value))
+                }
+              />
+              <Button
+                size="sm"
+                colorScheme="neutral"
+                onClick={() =>
+                  setUser(
+                    "content_from",
+                    fromDateInput(toDateInput(new Date().toISOString())),
+                  )
+                }
+              >
+                {t("users.content_from_today")}
+              </Button>
+              <Show when={id}>
+                <Button
+                  size="sm"
+                  colorScheme="neutral"
+                  disabled={!user.content_from}
+                  onClick={() => setUser("content_from", null)}
+                >
+                  {t("users.content_from_all")}
+                </Button>
+              </Show>
+            </Flex>
+            <Box color="$neutral10" fontSize="$sm" mt="$1">
+              {user.content_from
+                ? t("users.content_from_tips")
+                : t("users.content_from_all_tips")}
+            </Box>
+          </FormControl>
+        </Show>
         <FormControl w="fit-content" display="flex">
           <Checkbox
             css={{ whiteSpace: "nowrap" }}
@@ -311,6 +373,14 @@ const AddOrEdit = () => {
                 const expireResp = await saveExpire()
                 let failed = false
                 handleResp(expireResp, undefined, () => {
+                  failed = true
+                })
+                if (failed) return
+              }
+              if (id && (user.content_from ?? null) !== loadedContentFrom()) {
+                const cfResp = await saveContentFrom()
+                let failed = false
+                handleResp(cfResp, undefined, () => {
                   failed = true
                 })
                 if (failed) return

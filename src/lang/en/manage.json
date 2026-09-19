@@ -27,7 +27,8 @@
     "ldap": "LDAP",
     "s3": "S3",
     "subscriptions": "Subscriptions",
-    "transactions": "Transactions"
+    "transactions": "Transactions",
+    "wechat": "WeChat sign-in"
   },
   "title": "CloudNest Manage",
   "not_admin": "You are not admin user, please login with admin account.",

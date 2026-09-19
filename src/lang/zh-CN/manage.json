@@ -27,7 +27,8 @@
     "ldap": "LDAP",
     "s3": "S3",
     "subscriptions": "订阅记录",
-    "transactions": "交易流水"
+    "transactions": "交易流水",
+    "wechat": "微信登录"
   },
   "title": "CloudNest 管理",
   "not_admin": "您不是管理员，请使用管理员账号登录。",

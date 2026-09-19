@@ -101,5 +101,25 @@
   "version": "版本",
   "video_autoplay": "视频自动播放",
   "video_types": "视频类型",
-  "webauthn_login_enabled": "启用 WebAuthn 登录"
+  "webauthn_login_enabled": "启用 WebAuthn 登录",
+  "wxmini_login_enabled": "启用微信小程序扫码登录",
+  "wxmini_force_binding": "强制绑定微信（非管理员禁用密码登录与 WebDAV/FTP）",
+  "wxmini_appid": "小程序 AppID",
+  "wxmini_app_secret": "小程序 AppSecret",
+  "wxmini_page": "小程序确认页路径",
+  "wxmini_env_version": "小程序码打开的版本",
+  "wxmini_env_versions": {
+    "release": "正式版",
+    "trial": "体验版",
+    "develop": "开发版"
+  },
+  "wxmini_auto_register": "未绑定的微信扫码时自动注册新账号",
+  "wxmini_default_dir": "新注册账号的根目录（应指向不存在的目录，开通会员时再改）",
+  "wechat_login_enabled": "启用公众号网页授权登录（旧）",
+  "wechat_appid": "公众号 AppID（旧）",
+  "wechat_app_secret": "公众号 AppSecret（旧）",
+  "wechat_force_binding": "公众号强制绑定（旧）",
+  "wechat_auto_register": "公众号自动注册（旧）",
+  "wechat_default_dir": "公众号注册默认目录（旧）",
+  "wechat_default_permission": "公众号注册默认权限（旧）"
 }

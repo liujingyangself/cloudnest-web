@@ -56,3 +56,21 @@ export const deadlineInDays = (days: number, from?: string | null): string => {
   date.setHours(23, 59, 59, 0)
   return date.toISOString()
 }
+
+/** Format a timestamp for an `<input type="date">` (browser's timezone). */
+export const toDateInput = (value?: string | null): string => {
+  if (!value) return ""
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return ""
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(
+    date.getDate(),
+  )}`
+}
+
+/** Turn a `date` input value into the start of that local day. */
+export const fromDateInput = (value: string): string | null => {
+  if (!value) return null
+  const date = new Date(`${value}T00:00:00`)
+  if (Number.isNaN(date.getTime())) return null
+  return date.toISOString()
+}

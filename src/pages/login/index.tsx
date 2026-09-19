@@ -28,6 +28,7 @@ import { PResp, Resp } from "~/types"
 import LoginBg from "./LoginBg"
 import { createStorageSignal } from "@solid-primitives/storage"
 import { getSetting, getSettingBool } from "~/store"
+import { WxMiniQR, WxMiniTicket } from "~/components"
 import { SSOLogin } from "./SSOLogin"
 import { IoFingerPrint } from "solid-icons/io"
 import {
@@ -167,6 +168,15 @@ const Login = () => {
     }
   }
   const [needOpt, setNeedOpt] = createSignal(false)
+  // With scan sign-in on, the code is the front door; the password form is
+  // kept for existing users, who have to bind WeChat right after.
+  const wxMiniEnabled = getSettingBool("wxmini_login_enabled")
+  const [usePassword, setUsePassword] = createSignal(!wxMiniEnabled)
+  const onWxMiniToken = (token: string) => {
+    notify.success(t("login.success"))
+    changeToken(token)
+    to(decodeURIComponent(searchParams.redirect || base_path || "/"), true)
+  }
   const ldapLoginEnabled = getSettingBool("ldap_login_enabled")
   const ldapLoginTips = getSetting("ldap_login_tips")
   if (ldapLoginEnabled) {
@@ -192,92 +202,121 @@ const Login = () => {
           </Heading>
         </Flex>
         <Show
-          when={!needOpt()}
+          when={usePassword()}
           fallback={
-            <Input
-              id="totp"
-              name="otp"
-              placeholder={t("login.otp-tips")}
-              value={opt()}
-              onInput={(e) => setOpt(e.currentTarget.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  Login()
-                }
-              }}
+            <WxMiniQR
+              create={(): PResp<WxMiniTicket> =>
+                r.post("/auth/wxmini/login/create")
+              }
+              onToken={onWxMiniToken}
+              hint={t("wxmini.login_hint")}
             />
           }
         >
-          <Input
-            name="username"
-            placeholder={t("login.username-tips")}
-            value={username()}
-            onInput={(e) => setUsername(e.currentTarget.value)}
-          />
-          <Show when={!useauthn()}>
+          <Show
+            when={!needOpt()}
+            fallback={
+              <Input
+                id="totp"
+                name="otp"
+                placeholder={t("login.otp-tips")}
+                value={opt()}
+                onInput={(e) => setOpt(e.currentTarget.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    Login()
+                  }
+                }}
+              />
+            }
+          >
             <Input
-              name="password"
-              placeholder={t("login.password-tips")}
-              type="password"
-              value={password()}
-              onInput={(e) => setPassword(e.currentTarget.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  Login()
-                }
-              }}
+              name="username"
+              placeholder={t("login.username-tips")}
+              value={username()}
+              onInput={(e) => setUsername(e.currentTarget.value)}
             />
-          </Show>
-          <Flex
-            px="$1"
-            w="$full"
-            fontSize="$sm"
-            color="$neutral10"
-            justifyContent="space-between"
-            alignItems="center"
-          >
-            <Checkbox
-              checked={remember() === "true"}
-              onChange={() =>
-                setRemember(remember() === "true" ? "false" : "true")
-              }
-            >
-              {t("login.remember")}
-            </Checkbox>
-            <Text as="a" target="_blank" href={t("login.forget_url")}>
-              {t("login.forget")}
-            </Text>
-          </Flex>
-        </Show>
-        <HStack w="$full" spacing="$2">
-          <Show when={!useauthn()}>
-            <Button
-              colorScheme="primary"
+            <Show when={!useauthn()}>
+              <Input
+                name="password"
+                placeholder={t("login.password-tips")}
+                type="password"
+                value={password()}
+                onInput={(e) => setPassword(e.currentTarget.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    Login()
+                  }
+                }}
+              />
+            </Show>
+            <Flex
+              px="$1"
               w="$full"
-              onClick={() => {
-                if (needOpt()) {
-                  setOpt("")
-                } else {
-                  setUsername("")
-                  setPassword("")
-                }
-              }}
+              fontSize="$sm"
+              color="$neutral10"
+              justifyContent="space-between"
+              alignItems="center"
             >
-              {t("login.clear")}
-            </Button>
+              <Checkbox
+                checked={remember() === "true"}
+                onChange={() =>
+                  setRemember(remember() === "true" ? "false" : "true")
+                }
+              >
+                {t("login.remember")}
+              </Checkbox>
+              <Text as="a" target="_blank" href={t("login.forget_url")}>
+                {t("login.forget")}
+              </Text>
+            </Flex>
           </Show>
-          <Button w="$full" loading={loading()} onClick={Login}>
-            {t("login.login")}
-          </Button>
-        </HStack>
-        <Show when={ldapLoginEnabled}>
-          <Checkbox
-            w="$full"
-            checked={useLdap() === true}
-            onChange={() => setUseLdap(!useLdap())}
+          <HStack w="$full" spacing="$2">
+            <Show when={!useauthn()}>
+              <Button
+                colorScheme="primary"
+                w="$full"
+                onClick={() => {
+                  if (needOpt()) {
+                    setOpt("")
+                  } else {
+                    setUsername("")
+                    setPassword("")
+                  }
+                }}
+              >
+                {t("login.clear")}
+              </Button>
+            </Show>
+            <Button w="$full" loading={loading()} onClick={Login}>
+              {t("login.login")}
+            </Button>
+          </HStack>
+          <Show when={ldapLoginEnabled}>
+            <Checkbox
+              w="$full"
+              checked={useLdap() === true}
+              onChange={() => setUseLdap(!useLdap())}
+            >
+              {ldapLoginTips}
+            </Checkbox>
+          </Show>
+          <Show when={wxMiniEnabled && getSettingBool("wxmini_force_binding")}>
+            <Text fontSize="$xs" color="$neutral10" textAlign="center">
+              {t("wxmini.password_tip")}
+            </Text>
+          </Show>
+        </Show>
+        <Show when={wxMiniEnabled}>
+          <Text
+            as="button"
+            fontSize="$sm"
+            color="$info10"
+            _hover={{ textDecoration: "underline" }}
+            onClick={() => setUsePassword(!usePassword())}
           >
-            {ldapLoginTips}
-          </Checkbox>
+            {usePassword() ? t("wxmini.use_wechat") : t("wxmini.use_password")}
+          </Text>
         </Show>
         {/* 站点关闭匿名浏览时这个按钮是条死路：清掉 token 后立刻 401，
             再被弹回登录页。后端在 /public/settings 里给出真实状态。 */}
