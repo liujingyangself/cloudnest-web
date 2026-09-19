@@ -52,5 +52,10 @@
   "filter_all": "全部用户",
   "filter_soon": "即将到期",
   "filter_expired": "已到期",
-  "filter_never": "永不过期"
+  "filter_never": "永不过期",
+  "content_from": "会员起始日（可看内容的最早日期）",
+  "content_from_today": "从今天开始",
+  "content_from_all": "不限制",
+  "content_from_tips": "只能看到这一天及之后发布的新闻；没有日期的内容（如视频动漫）不受影响",
+  "content_from_all_tips": "不限制：能看到全部历史内容"
 }

@@ -52,5 +52,10 @@
   "filter_all": "All users",
   "filter_soon": "Expiring soon",
   "filter_expired": "Expired",
-  "filter_never": "Never expires"
+  "filter_never": "Never expires",
+  "content_from": "Membership start (earliest content visible)",
+  "content_from_today": "From today",
+  "content_from_all": "No limit",
+  "content_from_tips": "Only content published on or after this day is visible; undated content is not affected",
+  "content_from_all_tips": "No limit: all past content is visible"
 }
