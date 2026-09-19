@@ -11,9 +11,30 @@ const instance = axios.create({
   withCredentials: false,
 })
 
+// The server tells a user's devices apart by this id (per-account device
+// limit, kicking the oldest device). Without it every browser of an account
+// looks like the same device, so the limit never applies.
+const CLIENT_ID_KEY = "client_id"
+const clientId = (() => {
+  try {
+    const saved = localStorage.getItem(CLIENT_ID_KEY)
+    if (saved) return saved
+    const id =
+      typeof crypto !== "undefined" && "randomUUID" in crypto
+        ? crypto.randomUUID()
+        : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`
+    localStorage.setItem(CLIENT_ID_KEY, id)
+    return id
+  } catch {
+    // Storage blocked (private mode): a per-page id still beats none.
+    return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`
+  }
+})()
+
 instance.interceptors.request.use(
   (config) => {
-    // do something before request is sent
+    config.headers = config.headers ?? {}
+    config.headers["Client-Id"] = clientId
     return config
   },
   (error) => {

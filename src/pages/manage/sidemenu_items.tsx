@@ -86,6 +86,12 @@ export const side_menu_items: SideMenuItem[] = [
         component: () => <CommonSettings group={Group.LDAP} />,
       },
       {
+        title: "manage.sidemenu.wechat",
+        icon: FiLogIn,
+        to: "/@manage/settings/wechat",
+        component: () => <CommonSettings group={Group.WECHAT} />,
+      },
+      {
         title: "manage.sidemenu.s3",
         icon: BsBucket,
         to: "/@manage/settings/s3",

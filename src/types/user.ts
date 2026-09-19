@@ -26,6 +26,8 @@ export interface User {
   disabled: boolean
   // Absolute account deadline (RFC3339); null means the account never expires.
   expires_at: string | null
+  // openid under the WeChat mini program; empty when WeChat isn't bound
+  wx_mini_openid?: string
   // otp: boolean;
 }
 

@@ -9,5 +9,6 @@
   "contact_admin": "No code? Contact the administrator to get one.",
   "logout": "Log out",
   "plans_label": "Available plans",
-  "n_days": "{{n}} days"
+  "n_days": "{{n}} days",
+  "account": "Your username"
 }

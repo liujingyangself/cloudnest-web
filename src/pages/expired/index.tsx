@@ -77,6 +77,10 @@ const Expired = () => {
           <Text color="$neutral11">{t("expire.description")}</Text>
         </VStack>
 
+        <Box p="$3" rounded="$md" bg="$neutral3" color="$neutral11">
+          {t("expire.account")}: <b>{me().username}</b>
+        </Box>
+
         <Show when={me().expires_at}>
           <Box p="$3" rounded="$md" bg="$neutral3" color="$neutral11">
             {t("expire.expired_at")}: {formatDate(me().expires_at!)}

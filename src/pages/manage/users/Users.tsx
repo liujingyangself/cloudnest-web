@@ -195,6 +195,10 @@ const Users = () => {
   const [deleting, deleteUser] = useListFetch(
     (id: number): PEmptyResp => r.post(`/admin/user/delete?id=${id}`),
   )
+  // For when someone else bound a shared account before its owner did.
+  const [unbindingId, unbindWechat] = useListFetch(
+    (id: number): PEmptyResp => r.post("/admin/user/wxmini_unbind", { id }),
+  )
   const [cancel_2faId, cancel_2fa] = useListFetch(
     (id: number): PEmptyResp => r.post(`/admin/user/cancel_2fa?id=${id}`),
   )
@@ -265,6 +269,7 @@ const Users = () => {
               >
                 {(title) => <Th>{t(`users.${title}`)}</Th>}
               </For>
+              <Th>{t("wxmini.column")}</Th>
               <Th>{t("global.operations")}</Th>
             </Tr>
           </Thead>
@@ -287,6 +292,15 @@ const Users = () => {
                     <Wether yes={!user.disabled} />
                   </Td>
                   <Td>
+                    <Badge
+                      colorScheme={user.wx_mini_openid ? "success" : "neutral"}
+                    >
+                      {user.wx_mini_openid
+                        ? t("wxmini.bound")
+                        : t("wxmini.unbound")}
+                    </Badge>
+                  </Td>
+                  <Td>
                     <HStack spacing="$2">
                       <Button
                         onClick={() => {
@@ -306,6 +320,21 @@ const Users = () => {
                           })
                         }}
                       />
+                      <Show when={user.wx_mini_openid}>
+                        <Button
+                          colorScheme="warning"
+                          loading={unbindingId() === user.id}
+                          onClick={async () => {
+                            const resp = await unbindWechat(user.id)
+                            handleResp(resp, () => {
+                              notify.success(t("wxmini.unbind_success"))
+                              refresh()
+                            })
+                          }}
+                        >
+                          {t("wxmini.unbind")}
+                        </Button>
+                      </Show>
                       <Button
                         colorScheme="accent"
                         loading={cancel_2faId() === user.id}
