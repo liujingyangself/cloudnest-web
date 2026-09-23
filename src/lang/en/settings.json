@@ -114,5 +114,6 @@
     "develop": "Develop"
   },
   "wxmini_auto_register": "Register a new account when an unbound WeChat scans",
-  "wxmini_default_dir": "Base path of new sign-ups (point it at nothing; set the real folder when granting membership)"
+  "wxmini_default_dir": "Base path of new sign-ups (point it at nothing; set the real folder when granting membership)",
+  "wxmini_scan_geo_max_km": "Max km between the scanning phone and the signing-in device (0 = log only)"
 }

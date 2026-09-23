@@ -115,6 +115,7 @@
   },
   "wxmini_auto_register": "未绑定的微信扫码时自动注册新账号",
   "wxmini_default_dir": "新注册账号的根目录（应指向不存在的目录，开通会员时再改）",
+  "wxmini_scan_geo_max_km": "扫码手机与登录设备的最大距离（公里，0 = 只记录不拦截）",
   "wechat_login_enabled": "启用公众号网页授权登录（旧）",
   "wechat_appid": "公众号 AppID（旧）",
   "wechat_app_secret": "公众号 AppSecret（旧）",
