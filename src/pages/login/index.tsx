@@ -1,4 +1,5 @@
 import {
+  Box,
   Image,
   Center,
   Flex,
@@ -204,13 +205,39 @@ const Login = () => {
         <Show
           when={usePassword()}
           fallback={
-            <WxMiniQR
-              create={(): PResp<WxMiniTicket> =>
-                r.post("/auth/wxmini/login/create")
-              }
-              onToken={onWxMiniToken}
-              hint={t("wxmini.login_hint")}
-            />
+            <>
+              {/* 老用户在这里扫码会被注册成一个新的空 wx_ 账号，微信被它占住，
+                  回头就绑不到自己的账号上了。所以在码的上方先把路指清楚。 */}
+              <Box
+                w="$full"
+                p="$3"
+                rounded="$md"
+                bg="$warning3"
+                color="$warning11"
+                fontSize="$sm"
+              >
+                <Text fontWeight="$semibold">
+                  {t("wxmini.existing_user_title")}
+                </Text>
+                <Text>{t("wxmini.existing_user_desc")}</Text>
+                <Text
+                  as="button"
+                  mt="$1"
+                  fontWeight="$semibold"
+                  textDecoration="underline"
+                  onClick={() => setUsePassword(true)}
+                >
+                  {t("wxmini.existing_user_action")}
+                </Text>
+              </Box>
+              <WxMiniQR
+                create={(): PResp<WxMiniTicket> =>
+                  r.post("/auth/wxmini/login/create")
+                }
+                onToken={onWxMiniToken}
+                hint={t("wxmini.login_hint")}
+              />
+            </>
           }
         >
           <Show
