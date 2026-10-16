@@ -29,6 +29,7 @@
     "dev": "vite --force",
     "build": "vite build",
     "serve": "vite preview",
+    "test": "node --test --no-warnings tests/*.test.mjs",
     "prepare": "husky install",
     "format": "prettier --ignore-path .gitignore -w \"src/**/*.{js,ts,json,css,tsx,jsx}\""
   },

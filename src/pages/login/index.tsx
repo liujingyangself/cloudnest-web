@@ -231,6 +231,8 @@ const Login = () => {
                 </Text>
               </Box>
               <WxMiniQR
+                purpose="login"
+                resume={["login", "bind"]}
                 create={(): PResp<WxMiniTicket> =>
                   r.post("/auth/wxmini/login/create")
                 }

@@ -3,7 +3,7 @@ import { WxMiniQR, WxMiniTicket } from "~/components"
 import { useFetch, useRouter, useT, useTitle } from "~/hooks"
 import { me, Me, setMe } from "~/store"
 import { PResp } from "~/types"
-import { changeToken, handleResp, notify, r } from "~/utils"
+import { changeToken, clearPendingWxMini, handleResp, notify, r } from "~/utils"
 
 /**
  * Shown instead of the site to an account that signed in by password but has
@@ -32,6 +32,7 @@ const BindWechat = () => {
 
   const logOut = async () => {
     await logOutReq()
+    clearPendingWxMini()
     changeToken()
     to("/@login")
   }
@@ -48,6 +49,7 @@ const BindWechat = () => {
         </Box>
         <Center>
           <WxMiniQR
+            purpose="bind"
             create={(): PResp<WxMiniTicket> => r.post("/me/wxmini/bind/create")}
             onToken={onToken}
             hint={t("wxmini.bind_hint")}

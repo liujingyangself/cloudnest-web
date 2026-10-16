@@ -1,6 +1,7 @@
 {
   "qr_alt": "WeChat mini program code",
   "login_hint": "Scan with WeChat and confirm in the mini program. New users get an account automatically",
+  "in_wechat_tip": "You opened this site inside WeChat. Scanning on the same phone bounces between this page and the mini program, so we recommend opening this site in a computer browser and scanning with WeChat on your phone. If you only have your phone: long-press the code, confirm in the mini program, then come back to this page — it carries on by itself, no need to scan again.",
   "existing_user_title": "Already have an account?",
   "existing_user_desc": "Sign in with your username and password first, then bind WeChat when prompted. Scanning here creates a separate, empty account without your membership.",
   "existing_user_action": "Existing users: sign in with password →",
