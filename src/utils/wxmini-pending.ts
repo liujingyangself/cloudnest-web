@@ -4,8 +4,13 @@
 // without this the code they just confirmed is dropped and they are shown a
 // fresh one, over and over.
 //
-// sessionStorage is per tab, which is exactly the scope of a code: another
-// tab never picks up a login it did not start.
+// It lives in localStorage, not sessionStorage: WeChat on HarmonyOS reopens
+// the page in a fresh webview after the mini program, which starts with an
+// empty sessionStorage (2026-10-16, haruka: the confirmed code was gone and a
+// new one was created), while localStorage, where the session token also
+// lives, survives. The cost is that the browser's other tabs share the code;
+// a code lasts five minutes and is cleared once it is used, so at worst a
+// second tab shows "expired" and offers a fresh one.
 
 export type WxMiniPurpose = "login" | "bind"
 
@@ -40,9 +45,9 @@ const isPending = (v: unknown): v is WxMiniPending => {
 
 // Storage access can throw (private mode, blocked site data); losing the
 // memory only brings back the old behaviour, so failures are not reported.
-const sessionKV = (): KV | undefined => {
+const defaultKV = (): KV | undefined => {
   try {
-    return window.sessionStorage
+    return window.localStorage
   } catch {
     return undefined
   }
@@ -50,7 +55,7 @@ const sessionKV = (): KV | undefined => {
 
 export const savePendingWxMini = (
   pending: WxMiniPending,
-  kv: KV | undefined = sessionKV(),
+  kv: KV | undefined = defaultKV(),
 ) => {
   try {
     kv?.setItem(STORAGE_KEY, JSON.stringify(pending))
@@ -59,7 +64,7 @@ export const savePendingWxMini = (
   }
 }
 
-export const clearPendingWxMini = (kv: KV | undefined = sessionKV()) => {
+export const clearPendingWxMini = (kv: KV | undefined = defaultKV()) => {
   try {
     kv?.removeItem(STORAGE_KEY)
   } catch {
@@ -74,7 +79,7 @@ export const clearPendingWxMini = (kv: KV | undefined = sessionKV()) => {
 export const loadPendingWxMini = (
   purposes: readonly WxMiniPurpose[],
   now: number = Date.now(),
-  kv: KV | undefined = sessionKV(),
+  kv: KV | undefined = defaultKV(),
   minLeftMs = 3000,
 ): WxMiniPending | undefined => {
   let raw: string | null = null

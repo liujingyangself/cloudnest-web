@@ -51,7 +51,7 @@ const POLL_INTERVAL_MS = 2000
  * confirmed in the mini program. `create` asks the server for a ticket (sign
  * in, or bind the current account); `onToken` receives the session token.
  *
- * The code is remembered for the tab, so a reload picks it up again instead
+ * The code is remembered in the browser, so a reload picks it up again instead
  * of showing a new one (see wxmini-pending). `resume` lists which remembered
  * codes this page may take over besides its own `purpose`.
  */
